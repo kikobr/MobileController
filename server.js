@@ -26,7 +26,7 @@ io.on('connection', function(socket) {
     console.log("New user! -> %s", online);
     online ++;
 
-    console.log(io.open);
+    console.log(socket);
 
     socket.broadcast.emit('someone-connected', online);
 	
