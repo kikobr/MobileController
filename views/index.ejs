@@ -5,20 +5,68 @@
 	</head>
 	<body>
 		
-		<h1>Alguma coisa</h1>
+		<h1>Alguma coisa <span id="synced-name"></span></h1>
+		<p id="sync-password" style="display: none;"></p>
 		
-
+		<div class="sync-password-container" style="display: none;">
+			<form id="sync-password-form" action="/" method="GET" >
+				<input type="text" id="request-sync-password" placeholder="Digite o código para sincronizar">
+				<button type="submit">Enviar</button>
+			</form>
+			<input id="synced-name-input" type="text" placeholder="Nome" style="display: none;">
+		</div>
+	
 		<script src="socket.io-client/socket.io.js"></script>
 		<script>
 			var socket = io.connect();
+
+			// ---------------- NOT SYNCED ------------------
+			// Desktop
+			socket.on('showSyncPassword', function(password){
+				var syncPassword = document.querySelector('#sync-password');
+				syncPassword.innerHTML = "Digite este valor para sincronizar: <b>" + password + "</b>";
+				syncPassword.style.display = "block";
+			});
+			// Mobile
+			socket.on('requestSyncPassword', function(password){
+				document.querySelector('.sync-password-container').style.display = "block";
+			});
+			// On submit mobile
+			document.querySelector('#sync-password-form').addEventListener('submit', function(evt){
+				evt.preventDefault();
+				var password = document.querySelector('#request-sync-password').value;
+				socket.emit('syncPassword', password);
+			});
+
+
+
+			// ---------------- SYNCED START ------------------
+			socket.on('mobileSynced', function(){ 
+				document.querySelector('#sync-password-form').style.display = "none";
+				document.querySelector('#synced-name-input').style.display = "block"; 
+			});
+			socket.on('desktopSynced', function(){ document.querySelector('#sync-password').style.display = "none"; });
+
+			document.getElementById('synced-name-input').addEventListener('keyup', function(evt){
+				socket.emit('syncDesktopName', this.value);
+			});
+
+
+			// ---------------- SYNCED ------------------
+			socket.on('syncDesktopName', function(name){ 
+				document.querySelector('#synced-name').innerHTML = name;
+			});
+
+
+
+
+
+			// ONLINE - OFFLINE
 			socket.on('someone-connected', function(data) {
 				console.log('Someone connected! Online now: %s', data);
-				console.log(data);
-				console.log('---');
 			});
 			socket.on('someone-disconnected', function(data){
 				console.log('Someone disconnected! Online now: %s', data);
-				console.log('---');
 			});
 		</script>
 	</body>
