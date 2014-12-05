@@ -59,14 +59,39 @@
 
 
 
-
-
 			// ONLINE - OFFLINE
 			socket.on('someone-connected', function(data) {
 				console.log('Someone connected! Online now: %s', data);
 			});
 			socket.on('someone-disconnected', function(data){
 				console.log('Someone disconnected! Online now: %s', data);
+			});
+		</script>
+
+
+
+
+
+		<!-- 
+			Since I cannot find a way to emit events from server to server, 
+			i'm using this client script to mirror events and send them back to server.
+		-->
+		<script type="text/javascript">
+			var socket = io.connect();
+			socket.on('mobileInit', function(obj){
+				socket.emit('mobileInit', obj);
+			});
+			socket.on('desktopInit', function(obj){
+				socket.emit('desktopInit', obj);
+			});
+			socket.on('mobileSynced', function(obj){
+				socket.emit('mobileSynced', obj);
+			});
+			socket.on('mobileSyncFailed', function(obj){
+				socket.emit('mobileSyncFailed', obj);
+			});
+			socket.on('desktopSynced', function(obj){
+				socket.emit('desktopSynced', obj);
 			});
 		</script>
 	</body>
